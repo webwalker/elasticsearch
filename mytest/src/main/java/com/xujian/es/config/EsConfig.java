@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Configuration
-public class ElasticsearchClientConfig {
+public class EsConfig {
     private static final int ADDRESS_LENGTH = 2;
     private static final String HTTP_SCHEME = "http";
 
@@ -40,8 +40,7 @@ public class ElasticsearchClientConfig {
         return RestClient.builder(hosts);
     }
 
-
-    @Bean(name = "highLevelClient")
+    @Bean //(name = "highLevelClient")
     public RestHighLevelClient highLevelClient(@Autowired RestClientBuilder restClientBuilder) {
         restClientBuilder.setMaxRetryTimeoutMillis(60000);
         return new RestHighLevelClient(restClientBuilder);

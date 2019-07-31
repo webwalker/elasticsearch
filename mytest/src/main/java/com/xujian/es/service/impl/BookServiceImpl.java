@@ -1,6 +1,7 @@
 package com.xujian.es.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.xujian.es.domain.common.EsResponse;
 import com.xujian.es.domain.common.Page;
 import com.xujian.es.domain.model.BookModel;
 import com.xujian.es.domain.vo.BookRequestVO;
@@ -8,9 +9,10 @@ import com.xujian.es.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -19,35 +21,26 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.replication.ReplicationResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -70,6 +63,7 @@ public class BookServiceImpl implements BookService {
         int pageSize = bookRequestVO.getPageSize();
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        //分页
         sourceBuilder.from(pageNo - 1);
         sourceBuilder.size(pageSize);
         //sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
@@ -118,6 +112,12 @@ public class BookServiceImpl implements BookService {
             }
             queryBuilder.must(categoryBoolQueryBuilder);
         }
+        //filter
+        if (!ObjectUtils.isEmpty(bookRequestVO.getGtPrice()) && !ObjectUtils.isEmpty(bookRequestVO.getLtPrice())) {
+            queryBuilder.filter(QueryBuilders.rangeQuery("price")
+                    .from(bookRequestVO.getGtPrice())
+                    .to(bookRequestVO.getLtPrice()));
+        }
 
         //boolQueryBuilder.must(QueryBuilders.matchAllQuery());
         sourceBuilder.query(queryBuilder);
@@ -140,6 +140,7 @@ public class BookServiceImpl implements BookService {
             SearchHits searchHits = searchResponse.getHits();
             for (SearchHit hit : searchHits.getHits()) {
                 String source = hit.getSourceAsString();
+                //Map<String, Object> maps = getResponse.getSourceAsMap();
                 BookModel book = JSON.parseObject(source, BookModel.class);
                 list.add(book);
             }
@@ -227,7 +228,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void update(BookModel bookModel) {
+    public EsResponse update(BookModel bookModel) {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("price", bookModel.getPrice());
         jsonMap.put("sellReason", bookModel.getSellReason());
@@ -235,22 +236,26 @@ public class BookServiceImpl implements BookService {
         request.doc(jsonMap);
         try {
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
+            return EsResponse.ok(updateResponse);
         } catch (IOException e) {
             log.error("更新失败！原因: {}", e.getMessage(), e);
         }
+        return EsResponse.fail();
     }
 
     @Override
-    public void delete(int id) {
+    public EsResponse delete(int id) {
         DeleteRequest request = new DeleteRequest(INDEX_NAME, String.valueOf(id));
         try {
             DeleteResponse deleteResponse = client.delete(request, RequestOptions.DEFAULT);
             if (deleteResponse.status() == RestStatus.OK) {
                 log.info("删除成功！id: {}", id);
             }
+            return EsResponse.ok(deleteResponse);
         } catch (IOException e) {
             log.error("删除失败！原因: {}", e.getMessage(), e);
         }
+        return EsResponse.fail();
     }
 
     @Override
@@ -279,5 +284,26 @@ public class BookServiceImpl implements BookService {
             log.error("check exist 失败！原因: {}", e.getMessage(), e);
         }
         return false;
+    }
+
+    //批量处理多个请求
+    public Boolean batch() { //Collection<MessageContent> c
+        //批量操作请求：
+//        BulkRequest bulkRequest = new BulkRequest();
+//        for (MessageContent m : c) {
+//            try {
+//                //添加请求，这里不一定是插入，插入+修改+删除组合都可以
+//                bulkRequest.add(new IndexRequest(index).id(m.getMessageId()).source(Object2JsonUtil.ObjectToMap(m)));
+//                BulkResponse r = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+//                if (r.hasFailures()) {
+//                    return false;
+//                }
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        return true;
     }
 }

@@ -129,7 +129,10 @@ GET http://localhost:8080/book/delete?id=3
 GET http://localhost:8080/book/detail?id=1
 
 ### LIST
-GET http://localhost:8080/book/list?categories=10010,10011,10012&author=金庸&status=1&pageNo=1&pageSize=10
+GET http://localhost:8080/book/list?categories=10010,10011,10012,10013&author=金庸&status=1&pageNo=1&pageSize=10
+
+### LIST
+GET http://localhost:8080/book/list?gtPrice=20&ltPrice=80&author=金庸&status=1&pageNo=1&pageSize=10
 
 ### EXIST
 GET http://localhost:8080/book/exist?id=11

@@ -12,6 +12,8 @@ public class BookRequestVO {
     private String status;
     private String sellTime;
     private String categories;
+    private double gtPrice;
+    private double ltPrice;
 
     private int pageNo;
     private int pageSize;

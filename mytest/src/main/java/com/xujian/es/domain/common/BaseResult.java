@@ -18,12 +18,18 @@ public class BaseResult implements Serializable {
     public BaseResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
+        if (code == 0) {
+            success = true;
+        }
     }
 
     public BaseResult(int code, String msg, Object data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
+        if (code == 0) {
+            success = true;
+        }
     }
 
     public static BaseResult ok() {
