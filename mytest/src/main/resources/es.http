@@ -47,8 +47,7 @@ Content-Type: application/json
   }
 }
 
-###
-#/add
+### ADD
 POST http://localhost:8080/book/add
 Content-Type: application/json
 
@@ -63,7 +62,7 @@ Content-Type: application/json
   "status": 1
 }
 
-###
+### ADD
 POST http://localhost:8080/book/add
 Content-Type: application/json
 
@@ -71,14 +70,14 @@ Content-Type: application/json
   "id": 2,
   "name": "倚天XXX",
   "author": "金庸",
-  "category": 10011,
+  "category": 10010,
   "price": 68.4,
   "sellReason": "号令天下，莫敢不从。",
   "sellTime": "2018-11-11",
   "status": 1
 }
 
-###
+### ADD
 POST http://localhost:8080/book/add
 Content-Type: application/json
 
@@ -86,14 +85,29 @@ Content-Type: application/json
   "id": 3,
   "name": "神雕侠侣",
   "author": "金庸",
-  "category": 10011,
+  "category": 10012,
   "price": 70,
   "sellReason": "风陵渡口初相遇，一见杨过误终身",
   "sellTime": "2018-11-11",
   "status": 1
 }
 
-### 更新
+### ADD
+POST http://localhost:8080/book/add
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "神雕侠侣",
+  "author": "金庸",
+  "category": 10013,
+  "price": 70,
+  "sellReason": "风陵渡口初相遇，一见杨过误终身",
+  "sellTime": "2018-11-11",
+  "status": 1
+}
+
+### UPDATE
 POST http://localhost:8080/book/update
 Content-Type: application/json
 
@@ -101,14 +115,30 @@ Content-Type: application/json
   "id": 3,
   "name": "神雕侠侣",
   "author": "金庸",
-  "category": 10011,
-  "price": 90,
+  "category": 10014,
+  "price": 880,
   "sellReason": "风陵渡口初相遇，一见杨过误终身",
   "sellTime": "2018-11-11",
   "status": 1
 }
 
+### DELETE
+GET http://localhost:8080/book/delete?id=3
+
+### DETAIL
+GET http://localhost:8080/book/detail?id=1
+
+### LIST
+GET http://localhost:8080/book/list?categories=10010,10011,10012&author=金庸&status=1&pageNo=1&pageSize=10
+
+### EXIST
+GET http://localhost:8080/book/exist?id=11
+
 ###
+
+
+
+
 
 
 

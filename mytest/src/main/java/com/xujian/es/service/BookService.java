@@ -17,4 +17,6 @@ public interface BookService {
     void delete(int id);
 
     BookModel detail(int id);
+
+    boolean exist(int id);
 }

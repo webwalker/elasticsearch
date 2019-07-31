@@ -30,6 +30,10 @@ public class BaseResult implements Serializable {
         return new BaseResult(0, "成功");
     }
 
+    public static BaseResult ok(Object data) {
+        return new BaseResult(0, "成功", data);
+    }
+
     public static BaseResult ok(Page page) {
         return new BaseResult(0, "成功", page);
     }

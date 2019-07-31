@@ -24,7 +24,7 @@ import com.practice.es.service.ESService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ElasticsearchApplicationTests {
+public class ESApplication2Tests {
 	@Autowired
 	ESService esService;
 	

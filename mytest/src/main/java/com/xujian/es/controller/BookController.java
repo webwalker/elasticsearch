@@ -85,4 +85,11 @@ public class BookController {
         return BaseResult.ok();
     }
 
+    @GetMapping("/exist")
+    public BaseResult exist(Integer id) {
+        if (null == id) {
+            return BaseResult.error("ID不能为空");
+        }
+        return BaseResult.ok(bookService.exist(id));
+    }
 }
