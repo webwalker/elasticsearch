@@ -1,0 +1,124 @@
+# For a quick start check out our HTTP Requests collection (Tools|HTTP Client|Open HTTP Requests Collection).
+#
+# Following HTTP Request Live Templates are available:
+# * 'gtrp' and 'gtr' create a GET request with or without query parameters;
+# * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
+# * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
+
+#创建索引
+PUT http://localhost:9200/book
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_max_word"
+      },
+      "author": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_max_word"
+      },
+      "category": {
+        "type": "integer"
+      },
+      "price": {
+        "type": "double"
+      },
+      "status": {
+        "type": "short"
+      },
+      "sellReason": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_max_word"
+      },
+      "sellTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd"
+      }
+    }
+  }
+}
+
+###
+#/add
+POST http://localhost:8080/book/add
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "倚天屠龙记（全四册）",
+  "author": "金庸",
+  "category": 10011,
+  "price": 70.4,
+  "sellReason": "武林至尊，宝刀屠龙，号令天下，莫敢不从。",
+  "sellTime": "2018-11-11",
+  "status": 1
+}
+
+###
+POST http://localhost:8080/book/add
+Content-Type: application/json
+
+{
+  "id": 2,
+  "name": "倚天XXX",
+  "author": "金庸",
+  "category": 10011,
+  "price": 68.4,
+  "sellReason": "号令天下，莫敢不从。",
+  "sellTime": "2018-11-11",
+  "status": 1
+}
+
+###
+POST http://localhost:8080/book/add
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "神雕侠侣",
+  "author": "金庸",
+  "category": 10011,
+  "price": 70,
+  "sellReason": "风陵渡口初相遇，一见杨过误终身",
+  "sellTime": "2018-11-11",
+  "status": 1
+}
+
+### 更新
+POST http://localhost:8080/book/update
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "神雕侠侣",
+  "author": "金庸",
+  "category": 10011,
+  "price": 90,
+  "sellReason": "风陵渡口初相遇，一见杨过误终身",
+  "sellTime": "2018-11-11",
+  "status": 1
+}
+
+###
+
+
+
+
+
+
+
+
+
+
+
+
+
