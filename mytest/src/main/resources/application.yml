@@ -1,3 +1,18 @@
 elasticsearch:
-  #集群逗号分隔
-  ip: 127.0.0.1:9200
+  # ip地址，多个使用,分隔
+  ipAddrs: 127.0.0.1:9200 #, 127.0.0.12:9200
+  client:
+    # 连接目标url最大超时
+    connectTimeOut: 5000
+    # 等待响应（读数据）最大超时
+    socketTimeOut: 6000
+    # 从连接池中获取可用连接最大超时时间
+    connectionRequestTime: 3000
+    # 连接池中的最大连接数
+    maxConnectNum: 30
+    # 连接同一个route最大的并发数
+    maxConnectPerRoute: 10
+    # 连接用户名
+    username: xujian
+    # 连接密码
+    password: 123456

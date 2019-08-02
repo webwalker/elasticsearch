@@ -1,3 +1,15 @@
+有两种方式查询：
+
+Spring-data-elas..
+
+直接依赖es..（推荐）
+
+批量测试数据：https://github.com/webwalker/elasticsearch-data
+
+https://github.com/spinscale/elasticsearch-ecommerce-search-app
+
+- @PostConstruct 预创建 index
+
 官方Api：https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-getting-started.html#java-rest-high-getting-started
 
 https://www.cnblogs.com/cjsblog/p/10232581.html

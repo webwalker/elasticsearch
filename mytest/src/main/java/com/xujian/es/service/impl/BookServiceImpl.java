@@ -11,8 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -43,19 +41,16 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xujian.es.config.EsConstant.BOOK_INDEX;
+
 /**
  * Created by xujian on 2019-07-31
  */
 @Slf4j
 @Service
 public class BookServiceImpl implements BookService {
-
-    private static final String INDEX_NAME = "book";
-    private static final String INDEX_TYPE = "_doc";
-
     @Autowired
     private RestHighLevelClient client;
-
 
     @Override
     public Page<BookModel> list(BookRequestVO bookRequestVO) {
@@ -71,7 +66,7 @@ public class BookServiceImpl implements BookService {
         //sourceBuilder.sort(new ScoreSortBuilder().order(SortOrder.DESC));
 //        sourceBuilder.query(QueryBuilders.matchAllQuery());
 
-        //聚集函数
+        //聚合查询
 //        TermsAggregationBuilder aggregation = AggregationBuilders.terms("by_name")
 //                .field("name");
 //        aggregation.subAggregation(AggregationBuilders.avg("average_age"))
@@ -81,7 +76,7 @@ public class BookServiceImpl implements BookService {
         //构建Query
 //        MatchQueryBuilder queryBuilder = new MatchQueryBuilder("name", bookRequestVO.getName());
 //        queryBuilder.fuzziness(Fuzziness.AUTO);
-//        queryBuilder.prefixLength(3);
+//        queryBuilder.prefixLength(3); //前缀长度
 //        queryBuilder.maxExpansions(10);
 
 //        QueryBuilder queryBuilder = QueryBuilders.matchQuery("name", bookRequestVO.getName())
@@ -123,7 +118,7 @@ public class BookServiceImpl implements BookService {
         sourceBuilder.query(queryBuilder);
 
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(INDEX_NAME); //在指定的索引下查找
+        searchRequest.indices(BOOK_INDEX); //在指定的索引下查找
         searchRequest.source(sourceBuilder);
         //searchRequest.indicesOptions(IndicesOptions.LENIENT_EXPAND_OPEN);
 
@@ -172,7 +167,7 @@ public class BookServiceImpl implements BookService {
         jsonMap.put("sellReason", bookModel.getSellReason());
         jsonMap.put("status", bookModel.getStatus());
 
-        IndexRequest indexRequest = new IndexRequest(INDEX_NAME)
+        IndexRequest indexRequest = new IndexRequest(BOOK_INDEX)
                 .id(String.valueOf(bookModel.getId()))
                 .source(jsonMap); //方式1
 
@@ -232,7 +227,7 @@ public class BookServiceImpl implements BookService {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("price", bookModel.getPrice());
         jsonMap.put("sellReason", bookModel.getSellReason());
-        UpdateRequest request = new UpdateRequest(INDEX_NAME, String.valueOf(bookModel.getId()));
+        UpdateRequest request = new UpdateRequest(BOOK_INDEX, String.valueOf(bookModel.getId()));
         request.doc(jsonMap);
         try {
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
@@ -245,7 +240,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public EsResponse delete(int id) {
-        DeleteRequest request = new DeleteRequest(INDEX_NAME, String.valueOf(id));
+        DeleteRequest request = new DeleteRequest(BOOK_INDEX, String.valueOf(id));
         try {
             DeleteResponse deleteResponse = client.delete(request, RequestOptions.DEFAULT);
             if (deleteResponse.status() == RestStatus.OK) {
@@ -260,7 +255,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookModel detail(int id) {
-        GetRequest getRequest = new GetRequest(INDEX_NAME, String.valueOf(id));
+        GetRequest getRequest = new GetRequest(BOOK_INDEX, String.valueOf(id));
         try {
             GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
             if (getResponse.isExists()) {
@@ -277,7 +272,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean exist(int id) {
-        GetRequest getRequest = new GetRequest(INDEX_NAME, String.valueOf(id));
+        GetRequest getRequest = new GetRequest(BOOK_INDEX, String.valueOf(id));
         try {
             return client.exists(getRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
