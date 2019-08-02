@@ -4,7 +4,6 @@ import com.xujian.es.domain.common.EsResponse;
 import com.xujian.es.domain.common.Page;
 import com.xujian.es.domain.model.BookModel;
 import com.xujian.es.domain.vo.BookRequestVO;
-import org.elasticsearch.action.delete.DeleteResponse;
 
 /**
  * Created by xujian on 2019-07-31

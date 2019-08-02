@@ -59,7 +59,8 @@ public class BookServiceImpl implements BookService {
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         //分页
-        sourceBuilder.from(pageNo - 1);
+        int pageNumber = (pageNo - 1) * pageSize;
+        sourceBuilder.from(pageNumber); //表示从第几行开始
         sourceBuilder.size(pageSize);
         //sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
         sourceBuilder.sort(new FieldSortBuilder("id").order(SortOrder.ASC));
@@ -86,6 +87,7 @@ public class BookServiceImpl implements BookService {
 
         //BoolQueryBuilder
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        //与(must)或(should)非(mustnot)
         if (StringUtils.isNotBlank(bookRequestVO.getName())) {
             queryBuilder.must(QueryBuilders.matchQuery("name", bookRequestVO.getName()));
         }
