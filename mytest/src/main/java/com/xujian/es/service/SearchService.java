@@ -69,7 +69,7 @@ public class SearchService {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.preTags("<h2>");
         highlightBuilder.postTags("</h2>");
-        List<String> highlightFieldList = Arrays.asList(new String[]{"basic_description", "basic_id_contact"});
+        List<String> highlightFieldList = Arrays.asList(new String[]{"basic_description_IK", "basic_id_contact_IK"});
         for (String s : highlightFieldList) {
             highlightBuilder.field(s);
         }
@@ -77,7 +77,7 @@ public class SearchService {
 
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         //termQuery 模糊查询
-        queryBuilder.must(QueryBuilders.termQuery("basic_id_contact_IK", "海南"));
+        queryBuilder.must(QueryBuilders.termQuery("basic_id_contact_IK", "海南省"));
         //queryBuilder.must(QueryBuilders.termQuery("basic_id_creator_simple", "郭秀凤"))
         queryBuilder.must(QueryBuilders.termQuery("basic_description_IK", "中国"));
         queryBuilder.must(QueryBuilders.termQuery("basic_id_keyword_IK", "五指山市"));
@@ -104,29 +104,30 @@ public class SearchService {
             TotalHits totalHits = searchHits.getTotalHits();
             log.info("搜索到记录条数：" + totalHits.value);
 
-            List<IndexResourceInfoModel> indexList = new ArrayList<>();
-            for (SearchHit hit : hits) {
-                String source = hit.getSourceAsString();
-                IndexResourceInfoModel index = JSON.parseObject(source, IndexResourceInfoModel.class);
-                indexList.add(index);
-            }
+            //原始内容列表
+//            List<IndexResourceInfoModel> indexList = new ArrayList<>();
+//            for (SearchHit hit : hits) {
+//                String source = hit.getSourceAsString();
+//                IndexResourceInfoModel index = JSON.parseObject(source, IndexResourceInfoModel.class);
+//                indexList.add(index);
+//            }
 
             TimeValue took = searchResponse.getTook();
             log.info("查询成功！请求参数: {}", searchRequest.source().toString());
             log.info("远程用时{}毫秒", took.millis());
 
-            //包装高亮field
-            List<IndexResourceInfoModel> indexResourceInfoModelList = new ArrayList<IndexResourceInfoModel>();
-            getResultList(highlightFieldList, hits, indexResourceInfoModelList);
+            //包含高亮内容列表
+            List<IndexResourceInfoModel> hignlightList = new ArrayList<IndexResourceInfoModel>();
+            getResultList(highlightFieldList, hits, hignlightList);
 
             //详情
             log.info("【分页搜索结果详情】");
-            for (IndexResourceInfoModel indexResourceInfoModel : indexList) {
+            for (IndexResourceInfoModel indexResourceInfoModel : hignlightList) {
                 log.info(indexResourceInfoModel.toString());
             }
             log.info("搜索耗时：" + (System.currentTimeMillis() - begin) + "毫秒");
 
-            Page<IndexResourceInfoModel> page = new Page<>(pageNo, pageSize, totalHits.value, indexList);
+            Page<IndexResourceInfoModel> page = new Page<>(pageNo, pageSize, totalHits.value, hignlightList);
             return page;
         } catch (IOException e) {
             log.error("查询失败！原因: {}", e.getMessage(), e);

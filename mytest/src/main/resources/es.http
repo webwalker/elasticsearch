@@ -10,6 +10,9 @@ PUT http://localhost:9200/book
 Content-Type: application/json
 
 {
+  "settings":{
+    "number_of_replicas":0
+  },
   "mappings": {
     "properties": {
       "id": {

@@ -1,0 +1,162 @@
+# For a quick start check out our HTTP Requests collection (Tools|HTTP Client|Open HTTP Requests Collection).
+#
+# Following HTTP Request Live Templates are available:
+# * 'gtrp' and 'gtr' create a GET request with or without query parameters;
+# * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
+# * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
+
+### 初始化索引时配置的分词器
+GET http://localhost:9200/ss_ware_resource_info/
+
+### 分词器
+POST http://localhost:9200/ss_ware_resource_info/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "whitespace",
+  "text": "The quick brown fox."
+}
+
+###
+POST http://localhost:9200/ss_ware_resource_info/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "standard",
+  "filter": [
+    "lowercase",
+    "asciifolding"
+  ],
+  "text": "Is this déja vu?"
+}
+
+### 配置分词器
+#基于standard分析器来定义了一个std_englisth分析器，同时配置为删除预定义的英语停止词列表。
+#后面的mapping中，定义了my_text字段用standard，my_text.english用std_english分析器。
+
+DELETE http://localhost:9200/custom_analysis/
+
+### 定义某一列为拼音、中文等解析器，那么匹配查询时自动的根据传递的关键字进行返回结果。
+#搜索时，先通过测试解析器，相应的字符串被分析成什么样的数据
+PUT http://localhost:9200/custom_analysis/
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "std_english": {
+          "type": "standard",
+          "stopwords": "_english_"
+        },
+        "my_english_analyzer": {
+          "type": "standard",
+          "max_token_length": 5,
+          "stopwords": "_english_"
+        },
+        "rebuilt_standard": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "ik_smart_pinyin": {
+          "type": "custom",
+          "tokenizer": "ik_smart",
+          "filter": ["my_pinyin", "word_delimiter"]
+        },
+        "ik_max_word_pinyin": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["my_pinyin", "word_delimiter"]
+        }
+      },
+      "filter": {
+        "my_pinyin": {
+          "type" : "pinyin",
+          "keep_separate_first_letter" : true,
+          "keep_full_pinyin" : true,
+          "keep_original" : true,
+          "limit_first_letter_length" : 16,
+          "lowercase" : true,
+          "remove_duplicated_term" : true
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "my_text": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "english": {
+            "type": "text",
+            "analyzer": "std_english"
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+{
+  "field": "my_text",
+  "text": "The old brown cow"
+}
+
+###
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+{
+  "field": "my_text.english",
+  "text": "The old brown cow"
+}
+
+###
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "standard",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog\u0027s bone."
+}
+
+###
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+#rebuilt_standard分词器
+{
+  "analyzer": "my_english_analyzer",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog\u0027s bone."
+}
+
+### 中文分词ik
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+#ik_max_word
+#ik_smart
+{
+  "analyzer": "ik_max_word",
+  "text": "今天天气真好"
+}
+
+### 拼音分词
+POST http://localhost:9200/custom_analysis/_analyze
+Content-Type: application/json
+
+#ik_max_word
+#ik_smart
+{
+  "analyzer": "pinyin",
+  "text": "刘德华"
+}
+
+###
